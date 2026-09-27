@@ -1,15 +1,12 @@
 package Controller;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 
 import Model.MenuModel;
 import View.MenuView;
 
-public class MenuController implements CommandListener {
+public class MenuController implements MenuView.MenuListener {
 
 	private MIDlet midlet;
 	private Display display;
@@ -22,21 +19,38 @@ public class MenuController implements CommandListener {
 		this.display = display;
 
 		model = new MenuModel();
-		view = new MenuView(display, model.getOpcoes(), this);
+
+		view = new MenuView(model.getNomes(), model.getIcones(), model
+				.getDescricoes());
+
+		view.setListener(this);
 	}
 
 	public void iniciar() {
 		display.setCurrent(view);
 	}
 
-	public void commandAction(Command command, Displayable displayable) {
+	public void selecionar(int opcao) {
 
-		if (command == view.getSair()) {
-			midlet.notifyDestroyed();
-			return;
+		if (opcao == 0) {
+			abrirCalculadora();
 		}
 
-		
+		if (opcao == 1) {
+			abrirNotas();
+		}
+
+		if (opcao == 2) {
+			abrirJogos();
+		}
 	}
 
+	private void abrirCalculadora() {
+	}
+
+	private void abrirNotas() {
+	}
+
+	private void abrirJogos() {
+	}
 }
