@@ -18,6 +18,7 @@ public class MenuController implements MenuView.MenuListener {
 
 	private InformacoesController informacoesController;
 	private JogosController jogosController;
+	private CalculadoraController calculadoraController;
 
 	public MenuController(MIDlet midlet, Display display) {
 		this.midlet = midlet;
@@ -33,6 +34,8 @@ public class MenuController implements MenuView.MenuListener {
 		informacoesController = new InformacoesController(display, this);
 
 		jogosController = new JogosController(display, this);
+
+		calculadoraController = new CalculadoraController(display, this);
 	}
 
 	public void iniciar() {
@@ -54,6 +57,7 @@ public class MenuController implements MenuView.MenuListener {
 	}
 
 	private void abrirCalculadora() {
+		calculadoraController.iniciar();
 	}
 
 	private void abrirNotas() {

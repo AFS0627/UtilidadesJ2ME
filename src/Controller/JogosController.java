@@ -12,6 +12,7 @@ public class JogosController implements MenuView.MenuListener,
 	private MenuView view;
 	private SnakeController snakeController;
 
+
 	public JogosController(Display display, MenuController menuController) {
 		this.display = display;
 		this.menuController = menuController;

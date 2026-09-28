@@ -19,6 +19,7 @@ public class SnakeController implements SnakeView.VoltarListener {
 	}
 
 	public void iniciar() {
+		view.iniciar();
 		display.setCurrent(view);
 	}
 

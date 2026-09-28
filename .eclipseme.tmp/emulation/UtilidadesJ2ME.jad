@@ -1,4 +1,7 @@
 MIDlet-1: InformacoesModel,,Model.InformacoesModel
+MIDlet-10: CalculadoraModel,,Model.CalculadoraModel
+MIDlet-11: CalculadoraView,,View.CalculadoraView
+MIDlet-12: CalculadoraController,,Controller.CalculadoraController
 MIDlet-2: InformacoesView,,View.InformacoesView
 MIDlet-3: InformacoesController,,Controller.InformacoesController
 MIDlet-4: JogosModel,,Model.JogosModel
@@ -7,7 +10,7 @@ MIDlet-6: JogosController,,Controller.JogosController
 MIDlet-7: SnakeModel,,Model.SnakeModel
 MIDlet-8: SnakeView,,View.SnakeView
 MIDlet-9: SnakeController,,Controller.SnakeController
-MIDlet-Jar-Size: 31453
+MIDlet-Jar-Size: 38917
 MIDlet-Jar-URL: UtilidadesJ2ME.jar
 MIDlet-Name: UtilidadesJ2ME Midlet Suite
 MIDlet-Vendor: Midlet Suite Vendor

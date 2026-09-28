@@ -1,11 +1,12 @@
 package View;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Graphics;
-import Model.SnakeModel;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Graphics;
+import javax.microedition.rms.RecordStore;
+import Model.SnakeModel;
 
 public class SnakeView extends Canvas implements Runnable, CommandListener {
 	private Command comandoVoltar;
@@ -22,12 +23,15 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 	private boolean iniciado;
 	private boolean jogando;
 	private boolean gameOver;
+	private boolean menu;
 	private Thread thread;
+	private int velocidade;
+	private int tamanhoCobra;
+	private int opcaoMenu;
 	private static final int CIMA = 0;
 	private static final int DIREITA = 1;
 	private static final int BAIXO = 2;
 	private static final int ESQUERDA = 3;
-	private static final int TAMANHO_CELULA = 6;
 	private static final int MAX_COBRA = 100;
 
 	public SnakeView(SnakeModel model) {
@@ -38,15 +42,26 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		comandoVoltar = new Command("Voltar", Command.BACK, 1);
 		addCommand(comandoVoltar);
 		setCommandListener(this);
+		carregarConfiguracoes();
+		opcaoMenu = 0;
+		menu = true;
 		prepararJogo();
+	}
+
+	public void iniciar() {
+		pararJogo();
+		menu = true;
+		opcaoMenu = 0;
+		prepararJogo();
+		repaint();
 	}
 
 	private void prepararJogo() {
 		int largura = getWidth();
 		int altura = getHeight();
 		tamanho = 3;
-		cobraX[0] = largura / TAMANHO_CELULA / 2;
-		cobraY[0] = altura / TAMANHO_CELULA / 2;
+		cobraX[0] = largura / tamanhoCobra / 2;
+		cobraY[0] = altura / tamanhoCobra / 2;
 		cobraX[1] = cobraX[0] - 1;
 		cobraY[1] = cobraY[0];
 		cobraX[2] = cobraX[0] - 2;
@@ -57,14 +72,15 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		iniciado = false;
 		jogando = false;
 		gameOver = false;
+		thread = null;
 		criarComida();
-		repaint();
 	}
 
 	private void iniciarJogo() {
-		if (iniciado) {
+		if (iniciado || jogando) {
 			return;
 		}
+		menu = false;
 		iniciado = true;
 		jogando = true;
 		thread = new Thread(this);
@@ -72,11 +88,21 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		repaint();
 	}
 
+	private void pararJogo() {
+		jogando = false;
+		thread = null;
+	}
+
 	public void run() {
-		while (jogando) {
+		Thread minhaThread = Thread.currentThread();
+		while (jogando && thread == minhaThread) {
 			try {
-				Thread.sleep(180);
+				Thread.sleep(velocidade);
 			} catch (Exception e) {
+				return;
+			}
+			if (!jogando || thread != minhaThread) {
+				return;
 			}
 			if (!gameOver) {
 				mover();
@@ -98,8 +124,8 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		} else if (direcao == ESQUERDA) {
 			novoX--;
 		}
-		int largura = getWidth() / TAMANHO_CELULA;
-		int altura = (getHeight() - 15) / TAMANHO_CELULA;
+		int largura = getWidth() / tamanhoCobra;
+		int altura = (getHeight() - 15) / tamanhoCobra;
 		if (novoX < 0 || novoX >= largura || novoY < 0 || novoY >= altura) {
 			morrer();
 			return;
@@ -135,8 +161,8 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 	}
 
 	private void criarComida() {
-		int largura = getWidth() / TAMANHO_CELULA;
-		int altura = (getHeight() - 15) / TAMANHO_CELULA;
+		int largura = getWidth() / tamanhoCobra;
+		int altura = (getHeight() - 15) / tamanhoCobra;
 		long tempo = System.currentTimeMillis();
 		comidaX = (int) (Math.abs(tempo) % largura);
 		comidaY = (int) (Math.abs(tempo / 7) % altura);
@@ -155,6 +181,7 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 	private void morrer() {
 		gameOver = true;
 		jogando = false;
+		thread = null;
 		model.verificarRecorde(pontos);
 		repaint();
 	}
@@ -164,6 +191,10 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		int altura = getHeight();
 		g.setColor(255, 255, 255);
 		g.fillRect(0, 0, largura, altura);
+		if (menu) {
+			desenharMenu(g);
+			return;
+		}
 		g.setColor(0, 0, 0);
 		g.drawString("Pontos: " + pontos, 2, 2, Graphics.TOP | Graphics.LEFT);
 		g.drawString("Recorde: " + model.getRecorde(), largura - 2, 2,
@@ -171,25 +202,15 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		int inicioY = 15;
 		g.drawLine(0, inicioY, largura, inicioY);
 		for (int i = 0; i < tamanho; i++) {
-			int x = cobraX[i] * TAMANHO_CELULA;
-			int y = inicioY + cobraY[i] * TAMANHO_CELULA;
-			g.fillRect(x, y, TAMANHO_CELULA, TAMANHO_CELULA);
+			int x = cobraX[i] * tamanhoCobra;
+			int y = inicioY + cobraY[i] * tamanhoCobra;
+			g.fillRect(x, y, tamanhoCobra, tamanhoCobra);
 		}
-		int comidaTelaX = comidaX * TAMANHO_CELULA;
-		int comidaTelaY = inicioY + comidaY * TAMANHO_CELULA;
-		g.drawRect(comidaTelaX, comidaTelaY, TAMANHO_CELULA - 1,
-				TAMANHO_CELULA - 1);
-		if (!iniciado) {
-			g.setColor(255, 255, 255);
-			g.fillRect(10, altura / 2 - 25, largura - 20, 50);
-			g.setColor(0, 0, 0);
-			g.drawRect(10, altura / 2 - 25, largura - 20, 50);
-			g.drawString("SNAKE", largura / 2, altura / 2 - 20, Graphics.TOP
-					| Graphics.HCENTER);
-			g.drawString("Aperte uma tecla", largura / 2, altura / 2,
-					Graphics.TOP | Graphics.HCENTER);
-			return;
-		}
+		int comidaTelaX = comidaX * tamanhoCobra;
+		int comidaTelaY = inicioY + comidaY * tamanhoCobra;
+		g
+				.drawRect(comidaTelaX, comidaTelaY, tamanhoCobra - 1,
+						tamanhoCobra - 1);
 		if (gameOver) {
 			g.setColor(255, 255, 255);
 			g.fillRect(15, altura / 2 - 20, largura - 30, 45);
@@ -202,15 +223,66 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		}
 	}
 
+	private void desenharMenu(Graphics g) {
+		int largura = getWidth();
+		g.setColor(0, 0, 0);
+		g.drawString("SNAKE", largura / 2, 10, Graphics.TOP | Graphics.HCENTER);
+		String[] opcoes = { "Jogar", "Velocidade: " + getNomeVelocidade(),
+				"Tamanho: " + getNomeTamanho(), "Voltar" };
+		for (int i = 0; i < opcoes.length; i++) {
+			int y = 40 + i * 25;
+			if (i == opcaoMenu) {
+				g.setColor(80, 180, 80);
+				g.fillRect(10, y - 2, largura - 20, 22);
+				g.setColor(255, 255, 255);
+			} else {
+				g.setColor(0, 0, 0);
+			}
+			g.drawString(opcoes[i], 15, y, Graphics.TOP | Graphics.LEFT);
+		}
+	}
+
+	private String getNomeVelocidade() {
+		if (velocidade == 180) {
+			return "Lenta";
+		}
+		if (velocidade == 120) {
+			return "Media";
+		}
+		return "Rapida";
+	}
+
+	private String getNomeTamanho() {
+		if (tamanhoCobra == 6) {
+			return "Pequeno";
+		}
+		if (tamanhoCobra == 8) {
+			return "Medio";
+		}
+		return "Grande";
+	}
+
 	protected void keyPressed(int keyCode) {
 		int acao = getGameAction(keyCode);
+		if (menu) {
+			if (acao == UP) {
+				moverMenu(-1);
+			} else if (acao == DOWN) {
+				moverMenu(1);
+			} else if (acao == FIRE) {
+				selecionarMenu();
+			}
+			repaint();
+			return;
+		}
 		if (!iniciado) {
 			iniciarJogo();
 			return;
 		}
 		if (gameOver) {
 			if (acao == FIRE) {
-				prepararJogo();
+				iniciar();
+				menu = false;
 				iniciarJogo();
 			}
 			return;
@@ -226,6 +298,81 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 		}
 	}
 
+	private void moverMenu(int direcao) {
+		opcaoMenu += direcao;
+		if (opcaoMenu < 0) {
+			opcaoMenu = 3;
+		}
+		if (opcaoMenu > 3) {
+			opcaoMenu = 0;
+		}
+	}
+
+	private void selecionarMenu() {
+		if (opcaoMenu == 0) {
+			iniciarJogo();
+		} else if (opcaoMenu == 1) {
+			if (velocidade == 180) {
+				velocidade = 120;
+			} else if (velocidade == 120) {
+				velocidade = 70;
+			} else {
+				velocidade = 180;
+			}
+			salvarConfiguracoes();
+		} else if (opcaoMenu == 2) {
+			if (tamanhoCobra == 6) {
+				tamanhoCobra = 8;
+			} else if (tamanhoCobra == 8) {
+				tamanhoCobra = 10;
+			} else {
+				tamanhoCobra = 6;
+			}
+			salvarConfiguracoes();
+			prepararJogo();
+		} else if (opcaoMenu == 3) {
+			pararJogo();
+			if (voltarListener != null) {
+				voltarListener.voltar();
+			}
+		}
+	}
+
+	private void carregarConfiguracoes() {
+		try {
+			RecordStore rs = RecordStore.openRecordStore("snakecfg", true);
+			if (rs.getNumRecords() > 0) {
+				byte[] dados = rs.getRecord(1);
+				String texto = new String(dados);
+				int separador = texto.indexOf(";");
+				velocidade = Integer.parseInt(texto.substring(0, separador));
+				tamanhoCobra = Integer.parseInt(texto.substring(separador + 1));
+			} else {
+				velocidade = 180;
+				tamanhoCobra = 6;
+			}
+			rs.closeRecordStore();
+		} catch (Exception e) {
+			velocidade = 180;
+			tamanhoCobra = 6;
+		}
+	}
+
+	private void salvarConfiguracoes() {
+		try {
+			RecordStore rs = RecordStore.openRecordStore("snakecfg", true);
+			String texto = velocidade + ";" + tamanhoCobra;
+			byte[] dados = texto.getBytes();
+			if (rs.getNumRecords() == 0) {
+				rs.addRecord(dados, 0, dados.length);
+			} else {
+				rs.setRecord(1, dados, 0, dados.length);
+			}
+			rs.closeRecordStore();
+		} catch (Exception e) {
+		}
+	}
+
 	public void setVoltarListener(VoltarListener listener) {
 		voltarListener = listener;
 	}
@@ -236,7 +383,7 @@ public class SnakeView extends Canvas implements Runnable, CommandListener {
 
 	public void commandAction(Command command, Displayable displayable) {
 		if (command == comandoVoltar && voltarListener != null) {
-			jogando = false;
+			pararJogo();
 			voltarListener.voltar();
 		}
 	}
