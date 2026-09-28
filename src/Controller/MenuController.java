@@ -8,76 +8,63 @@ import View.MenuView;
 
 public class MenuController implements MenuView.MenuListener {
 
-    private MIDlet midlet;
-    private Display display;
+	private MIDlet midlet;
+	private Display display;
 
-    private MenuModel model;
-    private MenuView view;
+	private MenuModel model;
+	private MenuView view;
 
-    private InformacoesController informacoesController;
+	private InformacoesController informacoesController;
+	private JogosController jogosController;
 
-    public MenuController(MIDlet midlet, Display display) {
+	public MenuController(MIDlet midlet, Display display) {
+		this.midlet = midlet;
+		this.display = display;
 
-        this.midlet = midlet;
-        this.display = display;
+		model = new MenuModel();
 
-        model = new MenuModel();
+		view = new MenuView(model.getNomes(), model.getIcones(), model
+				.getDescricoes());
 
-        view = new MenuView(
-            model.getNomes(),
-            model.getIcones(),
-            model.getDescricoes()
-        );
+		view.setListener(this);
 
-        view.setListener(this);
+		informacoesController = new InformacoesController(display, this);
 
-        informacoesController =
-            new InformacoesController(
-                display,
-                this
-            );
-    }
+		jogosController = new JogosController(display, this);
+	}
 
-    public void iniciar() {
-        display.setCurrent(view);
-    }
+	public void iniciar() {
+		display.setCurrent(view);
+	}
 
-    public void selecionar(int opcao) {
+	public void selecionar(int opcao) {
+		if (opcao == 0) {
+			abrirCalculadora();
+		} else if (opcao == 1) {
+			abrirNotas();
+		} else if (opcao == 2) {
+			abrirJogos();
+		} else if (opcao == 3) {
+			abrirConversores();
+		} else if (opcao == 4) {
+			abrirInformacoes();
+		}
+	}
 
-        if (opcao == 0) {
-            abrirCalculadora();
-        }
+	private void abrirCalculadora() {
+	}
 
-        else if (opcao == 1) {
-            abrirNotas();
-        }
+	private void abrirNotas() {
+	}
 
-        else if (opcao == 2) {
-            abrirJogos();
-        }
+	private void abrirJogos() {
+		jogosController.iniciar();
+	}
 
-        else if (opcao == 3) {
-            abrirConversores();
-        }
+	private void abrirConversores() {
+	}
 
-        else if (opcao == 4) {
-            abrirInformacoes();
-        }
-    }
-
-    private void abrirCalculadora() {
-    }
-
-    private void abrirNotas() {
-    }
-
-    private void abrirJogos() {
-    }
-
-    private void abrirConversores() {
-    }
-
-    private void abrirInformacoes() {
-        informacoesController.iniciar();
-    }
+	private void abrirInformacoes() {
+		informacoesController.iniciar();
+	}
 }
