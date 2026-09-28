@@ -52,10 +52,8 @@ public class MenuController implements MenuView.MenuListener {
 		} else if (opcao == 2) {
 			abrirJogos();
 		} else if (opcao == 3) {
-			abrirConversores();
-		} else if (opcao == 4) {
 			abrirInformacoes();
-		}
+		} 
 	}
 
 	private void abrirCalculadora() {
@@ -70,8 +68,6 @@ public class MenuController implements MenuView.MenuListener {
 		jogosController.iniciar();
 	}
 
-	private void abrirConversores() {
-	}
 
 	private void abrirInformacoes() {
 		informacoesController.iniciar();
