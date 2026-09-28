@@ -4,6 +4,9 @@ MIDlet-3: InformacoesController,,Controller.InformacoesController
 MIDlet-4: JogosModel,,Model.JogosModel
 MIDlet-5: JogosView,,View.JogosView
 MIDlet-6: JogosController,,Controller.JogosController
+MIDlet-7: SnakeModel,,Model.SnakeModel
+MIDlet-8: SnakeView,,View.SnakeView
+MIDlet-9: SnakeController,,Controller.SnakeController
 MIDlet-Jar-URL: UtilidadesJ2ME.jar
 MIDlet-Name: UtilidadesJ2ME Midlet Suite
 MIDlet-Vendor: Midlet Suite Vendor

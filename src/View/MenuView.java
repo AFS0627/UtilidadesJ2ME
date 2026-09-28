@@ -3,9 +3,13 @@ package View;
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
+import javax.microedition.lcdui.Displayable;
 
-public class MenuView extends Canvas {
-
+public class MenuView extends Canvas implements CommandListener {
+	private Command comandoVoltar;
+	private VoltarListener voltarListener;
 	private String[] nomes;
 	private String[] icones;
 	private String[] descricoes;
@@ -21,6 +25,21 @@ public class MenuView extends Canvas {
 		selecionado = 0;
 		deslocamento = 0;
 		carregarImagens();
+	}
+
+	public MenuView(String[] nomes, String[] icones, String[] descricoes,
+			boolean mostrarVoltar) {
+		this.nomes = nomes;
+		this.icones = icones;
+		this.descricoes = descricoes;
+		selecionado = 0;
+		deslocamento = 0;
+		carregarImagens();
+		if (mostrarVoltar) {
+			comandoVoltar = new Command("Voltar", Command.BACK, 1);
+			addCommand(comandoVoltar);
+			setCommandListener(this);
+		}
 	}
 
 	private void carregarImagens() {
@@ -185,5 +204,19 @@ public class MenuView extends Canvas {
 			palavras[indice] = palavra;
 		}
 		return palavras;
+	}
+
+	public void setVoltarListener(VoltarListener listener) {
+		this.voltarListener = listener;
+	}
+
+	public interface VoltarListener {
+		void voltar();
+	}
+
+	public void commandAction(Command command, Displayable displayable) {
+		if (command == comandoVoltar && voltarListener != null) {
+			voltarListener.voltar();
+		}
 	}
 }
