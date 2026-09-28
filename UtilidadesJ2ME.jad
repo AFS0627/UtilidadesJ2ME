@@ -2,6 +2,9 @@ MIDlet-1: InformacoesModel,,Model.InformacoesModel
 MIDlet-10: CalculadoraModel,,Model.CalculadoraModel
 MIDlet-11: CalculadoraView,,View.CalculadoraView
 MIDlet-12: CalculadoraController,,Controller.CalculadoraController
+MIDlet-13: NotasModel,,Model.NotasModel
+MIDlet-14: NotasView,,View.NotasView
+MIDlet-15: NotasController,,Controller.NotasController
 MIDlet-2: InformacoesView,,View.InformacoesView
 MIDlet-3: InformacoesController,,Controller.InformacoesController
 MIDlet-4: JogosModel,,Model.JogosModel
