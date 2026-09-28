@@ -8,49 +8,76 @@ import View.MenuView;
 
 public class MenuController implements MenuView.MenuListener {
 
-	private MIDlet midlet;
-	private Display display;
+    private MIDlet midlet;
+    private Display display;
 
-	private MenuModel model;
-	private MenuView view;
+    private MenuModel model;
+    private MenuView view;
 
-	public MenuController(MIDlet midlet, Display display) {
-		this.midlet = midlet;
-		this.display = display;
+    private InformacoesController informacoesController;
 
-		model = new MenuModel();
+    public MenuController(MIDlet midlet, Display display) {
 
-		view = new MenuView(model.getNomes(), model.getIcones(), model
-				.getDescricoes());
+        this.midlet = midlet;
+        this.display = display;
 
-		view.setListener(this);
-	}
+        model = new MenuModel();
 
-	public void iniciar() {
-		display.setCurrent(view);
-	}
+        view = new MenuView(
+            model.getNomes(),
+            model.getIcones(),
+            model.getDescricoes()
+        );
 
-	public void selecionar(int opcao) {
+        view.setListener(this);
 
-		if (opcao == 0) {
-			abrirCalculadora();
-		}
+        informacoesController =
+            new InformacoesController(
+                display,
+                this
+            );
+    }
 
-		if (opcao == 1) {
-			abrirNotas();
-		}
+    public void iniciar() {
+        display.setCurrent(view);
+    }
 
-		if (opcao == 2) {
-			abrirJogos();
-		}
-	}
+    public void selecionar(int opcao) {
 
-	private void abrirCalculadora() {
-	}
+        if (opcao == 0) {
+            abrirCalculadora();
+        }
 
-	private void abrirNotas() {
-	}
+        else if (opcao == 1) {
+            abrirNotas();
+        }
 
-	private void abrirJogos() {
-	}
+        else if (opcao == 2) {
+            abrirJogos();
+        }
+
+        else if (opcao == 3) {
+            abrirConversores();
+        }
+
+        else if (opcao == 4) {
+            abrirInformacoes();
+        }
+    }
+
+    private void abrirCalculadora() {
+    }
+
+    private void abrirNotas() {
+    }
+
+    private void abrirJogos() {
+    }
+
+    private void abrirConversores() {
+    }
+
+    private void abrirInformacoes() {
+        informacoesController.iniciar();
+    }
 }
