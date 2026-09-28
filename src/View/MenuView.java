@@ -13,6 +13,7 @@ public class MenuView extends Canvas {
 	private Image[] imagens;
 
 	private int selecionado;
+	private int deslocamento;
 
 	private MenuListener listener;
 
@@ -22,6 +23,7 @@ public class MenuView extends Canvas {
 		this.descricoes = descricoes;
 
 		selecionado = 0;
+		deslocamento = 0;
 
 		carregarImagens();
 	}
@@ -57,75 +59,98 @@ public class MenuView extends Canvas {
 	private void desenharOpcoes(Graphics g) {
 
 		int x = 10;
-		int y = 20;
-		int larguraBarra = 95;
-		int alturaBarra = 25;
+		int yInicial = 20;
+		int espacamento = 35;
+
+		int larguraBarra = getWidth() / 2 - 15;
 
 		for (int i = 0; i < nomes.length; i++) {
 
+			int y = yInicial + (i * espacamento) - deslocamento;
+
+			if (y + 25 < 0 || y > getHeight()) {
+				continue;
+			}
+
 			if (i == selecionado) {
 				g.setColor(80, 180, 80);
-				g.fillRect(x, y - 2, larguraBarra, alturaBarra);
+				g.fillRect(x, y - 2, larguraBarra, 25);
 			}
 
 			g.setColor(0, 0, 0);
 
 			g.drawString(nomes[i], x + 5, y, Graphics.TOP | Graphics.LEFT);
-
-			y += 35;
 		}
 	}
 
 	private void desenharDetalhes(Graphics g) {
 
-		int xImagem = 120;
+		int xImagem = getWidth() / 2 + 5;
+		int larguraArea = getWidth() - xImagem - 5;
+
 		int yImagem = 20;
+		int alturaImagem = 55;
 
 		if (imagens[selecionado] != null) {
 
 			Image imagem = imagens[selecionado];
 
-			int x = xImagem + (80 - imagem.getWidth()) / 2;
-			int y = yImagem + (65 - imagem.getHeight()) / 2;
+			int x = xImagem + (larguraArea - imagem.getWidth()) / 2;
+			int y = yImagem + (alturaImagem - imagem.getHeight()) / 2;
 
 			g.drawImage(imagem, x, y, Graphics.TOP | Graphics.LEFT);
 		}
 
 		g.setColor(0, 0, 0);
 
-		desenharTexto(g, descricoes[selecionado], xImagem, 100, 60);
+		desenharTexto(g, descricoes[selecionado], xImagem, 90, larguraArea);
 	}
 
 	private void desenharTexto(Graphics g, String texto, int x, int y,
 			int largura) {
 
-		String palavra = "";
-		int linha = 0;
+		String linha = "";
+		int linhaAtual = 0;
 
-		for (int i = 0; i < texto.length(); i++) {
+		int altura = g.getFont().getHeight();
+		int maxLinhas = (getHeight() - y - 5) / altura;
 
-			char caractere = texto.charAt(i);
+		String[] palavras = separarPalavras(texto);
 
-			if (caractere == ' ') {
+		for (int i = 0; i < palavras.length; i++) {
 
-				if (g.getFont().stringWidth(palavra + " ") > largura) {
+			String teste = linha;
 
-					g.drawString(palavra, x, y + linha * 15, Graphics.TOP
-							| Graphics.LEFT);
+			if (teste.length() > 0) {
+				teste += " ";
+			}
 
-					linha++;
-					palavra = "";
-				} else {
-					palavra += " ";
+			teste += palavras[i];
+
+			if (g.getFont().stringWidth(teste) > largura) {
+
+				if (linha.length() > 0) {
+
+					if (linhaAtual >= maxLinhas) {
+						break;
+					}
+
+					g.drawString(linha, x, y + linhaAtual * altura,
+							Graphics.TOP | Graphics.LEFT);
+
+					linhaAtual++;
 				}
 
+				linha = palavras[i];
+
 			} else {
-				palavra += caractere;
+				linha = teste;
 			}
 		}
 
-		if (palavra.length() > 0) {
-			g.drawString(palavra, x, y + linha * 15, Graphics.TOP
+		if (linha.length() > 0 && linhaAtual < maxLinhas) {
+
+			g.drawString(linha, x, y + linhaAtual * altura, Graphics.TOP
 					| Graphics.LEFT);
 		}
 	}
@@ -142,6 +167,7 @@ public class MenuView extends Canvas {
 				selecionado = nomes.length - 1;
 			}
 
+			atualizarRolagem();
 			repaint();
 
 		} else if (acao == Canvas.DOWN) {
@@ -152,6 +178,7 @@ public class MenuView extends Canvas {
 				selecionado = 0;
 			}
 
+			atualizarRolagem();
 			repaint();
 
 		} else if (acao == Canvas.FIRE) {
@@ -162,7 +189,55 @@ public class MenuView extends Canvas {
 		}
 	}
 
+	private void atualizarRolagem() {
+
+		if (selecionado >= 3) {
+			deslocamento = (selecionado - 2) * 35;
+		} else {
+			deslocamento = 0;
+		}
+	}
+
 	public interface MenuListener {
 		void selecionar(int opcao);
+	}
+
+	private String[] separarPalavras(String texto) {
+
+		int quantidade = 1;
+
+		for (int i = 0; i < texto.length(); i++) {
+			if (texto.charAt(i) == ' ') {
+				quantidade++;
+			}
+		}
+
+		String[] palavras = new String[quantidade];
+
+		int indice = 0;
+		String palavra = "";
+
+		for (int i = 0; i < texto.length(); i++) {
+
+			char caractere = texto.charAt(i);
+
+			if (caractere == ' ') {
+
+				if (palavra.length() > 0) {
+					palavras[indice] = palavra;
+					indice++;
+					palavra = "";
+				}
+
+			} else {
+				palavra += caractere;
+			}
+		}
+
+		if (palavra.length() > 0) {
+			palavras[indice] = palavra;
+		}
+
+		return palavras;
 	}
 }
