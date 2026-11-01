@@ -1,0 +1,15 @@
+.eclipseme.tmp/
+
+bin/ *.class
+
+*.log *.tmp
+
+.DS_Store Thumbs.db desktop.ini
+
+.idea/ *.iml
+
+*~ *.bak
+
+.settings
+
+.eclipseme
